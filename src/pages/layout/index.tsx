@@ -138,20 +138,17 @@ function LayoutPage() {
                             activeKey={activeKey}
                             setActiveKey={setActiveKey}
                 />
-                <div>
+                <Routes>
                     {tabs.map((route: IRoute, index: number) => {
                         return (
-                            <div
+                            <Route
                                 key={route.key}
-                                style={{display: route.key == activeKey ? 'block' : 'none'}}
-                            >
-                                {
-                                    route.elem
-                                }
-                            </div>
+                                path={route.path}
+                                element={route.elem}
+                            />
                         )
                     })}
-                </div>
+                </Routes>
             </Content>
         </Layout>
     </Layout>
