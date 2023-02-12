@@ -72,6 +72,7 @@ function LayoutPage() {
         console.log('Location 变化了', tab)
         if (tab) {
             setActiveKey(tab.key as string);
+            console.log('找到了')
         } else {
             const route = flattenRoutes.find(item => {
                 if (item.key == location.pathname) {
@@ -138,17 +139,18 @@ function LayoutPage() {
                             activeKey={activeKey}
                             setActiveKey={setActiveKey}
                 />
-                <Routes>
+                <div>
                     {tabs.map((route: IRoute, index: number) => {
                         return (
-                            <Route
+                            <div
                                 key={route.key}
-                                path={route.path}
-                                element={route.elem}
-                            />
+                                style={{display: route.key == activeKey ? 'block' : 'none'}}
+                            >
+                                {route.elem}
+                            </div>
                         )
                     })}
-                </Routes>
+                </div>
             </Content>
         </Layout>
     </Layout>
@@ -185,8 +187,8 @@ function RenderTabs({tabs, setTabs, activeKey, setActiveKey}: {
             <div className={[classes.tab, item.id == activeKey ? classes.active : ''].join(' ')}
                  key={item.id}
                  onClick={() => {
-                     setActiveKey(item.id);
-                     // navigate(item.id);
+                     // setActiveKey(item.id);
+                     navigate(item.id);
                  }}
             >
                 {item.icon && <span className={classes.icon}>{item.icon}</span>}
