@@ -6,6 +6,7 @@ import NProgress from 'nprogress';
 import {useNavigate} from "react-router";
 import {NavigateFunction} from "react-router/dist/lib/hooks";
 import 'nprogress/nprogress.css';
+import {IRoute} from "@/types";
 
 
 function clickNavItem(navigate: NavigateFunction, key: string) {
@@ -22,30 +23,36 @@ function clickNavItem(navigate: NavigateFunction, key: string) {
     // }
 }
 
-export function LayoutNav() {
+export function LayoutNav({flattenRoutes, setActiveKey}: { flattenRoutes: IRoute[], setActiveKey: Function }) {
 
     const navigate = useNavigate();
 
     // TODO 需要一个递归转换菜单的函数
     const menus = useMemo(() => {
         const res: SubNavProps[] = [];
-        routes.map((item, index) => {
-            res.push({
-                itemKey: item.key,
-                text: item.name,
-                icon: item.icon,
-            })
+        flattenRoutes.map((item, index) => {
+            if (!item.wild && !item.hidden) {
+                res.push({
+                    itemKey: item.key,
+                    text: item.name,
+                    icon: item.icon,
+                })
+            }
         })
         return res;
-    }, []);
+    }, [flattenRoutes]);
 
 
     return (
         <Nav
             style={{height: 'calc(100% - 45px)'}}
             items={menus}
-            onSelect={data => {}}
-            onClick={data => clickNavItem(navigate, data.itemKey as string)}
+            onSelect={data => {
+            }}
+            onClick={data => {
+                // setActiveKey(data.itemKey);
+                navigate(data.itemKey as string);
+            }}
             footer={{
                 collapseButton: true,
             }}

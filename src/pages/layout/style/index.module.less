@@ -36,14 +36,24 @@ body {
 .tab {
   width: 100px;
   margin-right: 10px;
-  background: #333;
+  background: #c9c9c9;
   color: #fff;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+
+  .icon {
+    margin-right: 2px;
+    position: relative;
+    top: 1px;
+  }
 
   &:hover {
-    background: red;
+    background: gray;
   }
 
   &.active {
-    background: blueviolet;
+    background: var(--semi-color-primary);;
   }
 }

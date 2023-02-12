@@ -1,7 +1,7 @@
 import {Routes, Route, RouterProvider, createBrowserRouter, Link, useLocation, matchPath} from "react-router-dom";
 import React, {forwardRef, useEffect, useMemo, useState} from "react";
 import {routes} from "../routes";
-import {flattenRoutes} from "@/utils/flattenRoutes";
+import {prepareRoutes} from "@/utils/prepareRoutes";
 import {IRoute} from "@/types";
 import classes from './style/index.module.less'
 import {LayoutNav} from "@/pages/layout/nav";
@@ -22,7 +22,7 @@ const CustomComponent = forwardRef<HTMLDivElement, any>((props, ref) => {
 });
 
 function LayoutPage() {
-    const [flattenRoutesMemo] = useState(flattenRoutes(routes));
+    const [flattenRoutes] = useState(prepareRoutes(routes));
     const [tabs, setTabs] = useState([] as IRoute[]);
     const [activeKey, setActiveKey] = useState('console');
     const location = useLocation();
@@ -30,7 +30,7 @@ function LayoutPage() {
 
 
     useMount(() => {
-        console.debug(flattenRoutesMemo)
+        console.debug(flattenRoutes)
     })
 
     const close = (key: string) => {
@@ -44,6 +44,7 @@ function LayoutPage() {
             return next
         });
     }
+
 
     // Tab 设置 Title 回调
     const $setTitle = (key: string) => {
@@ -64,16 +65,15 @@ function LayoutPage() {
 
 
     useEffect(() => {
-        if (!flattenRoutesMemo) {
+        if (!flattenRoutes) {
             return
         }
-
         const tab = tabs.find(item => item.key == location.pathname);
         console.log('Location 变化了', tab)
         if (tab) {
             setActiveKey(tab.key as string);
         } else {
-            const route = flattenRoutesMemo.find(item => {
+            const route = flattenRoutes.find(item => {
                 if (item.key == location.pathname) {
                     return true
                 } else if (matchPath(item.path as string, location.pathname)) {
@@ -91,12 +91,22 @@ function LayoutPage() {
                         newRoute.key = location.pathname;
                         newRoute.path = location.pathname;
                         newRoute.wild = false;
+                        newRoute.elem = route.component.render({
+                            $setTitle: $setTitle(newRoute.key as string),
+                            $key: newRoute.key,
+                            $params: newRoute.$params,
+                        })
                         next.push(newRoute)
                         key = newRoute.key
                         console.log("New Route", newRoute)
                     } else {
                         next.push(route)
                         key = route.key as string;
+                        route.elem = route.component.render({
+                            $setTitle: $setTitle(route.key as string),
+                            $key: route.key,
+                            $params: route.$params,
+                        })
                     }
                     return next
                 });
@@ -110,38 +120,43 @@ function LayoutPage() {
                 Toast.error({content: '页面未找到'})
             }
         }
-    }, [location])
+    }, [location.pathname])
 
 
     return <Layout className={classes.layout}>
         <HeaderComponent/>
         <Layout>
-            <Sider style={{height: '100vh'}}><LayoutNav/></Sider>
-            <Content style={{background: '#f7f7f7'}}>
-                <Tabs tabs={tabs}
-                      setTabs={setTabs}
-                      activeKey={activeKey}
-                      setActiveKey={setActiveKey}
+            <Sider style={{height: '100vh'}}>
+                <LayoutNav
+                    flattenRoutes={flattenRoutes}
+                    setActiveKey={setActiveKey}
                 />
-                <Routes>
+            </Sider>
+            <Content style={{background: '#f7f7f7'}}>
+                <RenderTabs tabs={tabs}
+                            setTabs={setTabs}
+                            activeKey={activeKey}
+                            setActiveKey={setActiveKey}
+                />
+                <div>
                     {tabs.map((route: IRoute, index: number) => {
                         return (
-                            <Route
+                            <div
                                 key={route.key}
-                                path={route.path}
-                                element={route.component.render({
-                                    $setTitle: $setTitle(route.key as string),
-                                    $key: route.key,
-                                    $params: route.$params,
-                                })}
-                            />
+                                style={{display: route.key == activeKey ? 'block' : 'none'}}
+                            >
+                                {
+                                    route.elem
+                                }
+                            </div>
                         )
                     })}
-                </Routes>
+                </div>
             </Content>
         </Layout>
     </Layout>
 }
+
 
 interface iCard {
     id: string,
@@ -149,7 +164,7 @@ interface iCard {
     icon: any,
 }
 
-function Tabs({tabs, setTabs, activeKey, setActiveKey}: {
+function RenderTabs({tabs, setTabs, activeKey, setActiveKey}: {
     tabs: IRoute[], setTabs: Function, activeKey: string, setActiveKey: Function
 }) {
 
@@ -165,20 +180,19 @@ function Tabs({tabs, setTabs, activeKey, setActiveKey}: {
             })
         })
         setCards(list)
-        console.log("Tabs 变化了", tabs)
+        console.log("RenderTabs 变化了", tabs)
     }, [tabs])
 
-
-    // @ts-ignore
     return <ReactSortable tag={CustomComponent} list={cards} setList={setCards}>
         {cards.map((item) => (
             <div className={[classes.tab, item.id == activeKey ? classes.active : ''].join(' ')}
                  key={item.id}
                  onClick={() => {
                      setActiveKey(item.id);
-                     navigate(item.id);
+                     // navigate(item.id);
                  }}
             >
+                {item.icon && <span className={classes.icon}>{item.icon}</span>}
                 {item.name}
             </div>
         ))}
