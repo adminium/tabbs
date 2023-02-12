@@ -5,4 +5,6 @@ export type IRoute = {
     breadcrumb?: boolean;
     children?: IRoute[];
     component?: any;
+
+    closable?: boolean;
 }

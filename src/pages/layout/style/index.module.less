@@ -5,6 +5,18 @@ body {
 
 .layout {
   background: #eee;
+
+  :global {
+    .semi-tabs-bar .semi-tabs-tab .semi-icon-close {
+      visibility: hidden;
+    }
+
+    .semi-tabs-bar .semi-tabs-tab:hover {
+      .semi-icon-close {
+        visibility: visible;
+      }
+    }
+  }
 }
 
 .header {
@@ -12,8 +24,6 @@ body {
   display: flex;
   padding: 0 15px;
   align-items: center;
-  justify-content: space-between;
-  color: #fdfdfd;
+  //justify-content: space-between;
   font-weight: bold;
-  background-image: linear-gradient(rgb(113,44,249),rgba(113,44,249,0.95));
 }

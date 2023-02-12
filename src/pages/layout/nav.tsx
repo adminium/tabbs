@@ -9,16 +9,17 @@ import 'nprogress/nprogress.css';
 
 
 function clickNavItem(navigate: NavigateFunction, key: string) {
-    const route: any = routes.find(item => item.key == key);
-    if (!route?.component) {
-        Toast.error({content: '访问页面不存在'})
-    } else {
-        NProgress.start();
-        route.component.preload().then(() => {
-            navigate(`/${key}`)
-            NProgress.done()
-        })
-    }
+    navigate(`${key}`)
+    // const route: any = routes.find(item => item.key == key);
+    // if (!route?.component) {
+    //     Toast.error({content: '访问页面不存在'})
+    // } else {
+    //     NProgress.start();
+    //     route.component.preload().then(() => {
+    //         navigate(`${key}`)
+    //         NProgress.done()
+    //     })
+    // }
 }
 
 export function LayoutNav() {
@@ -41,10 +42,13 @@ export function LayoutNav() {
 
     return (
         <Nav
-            style={{height: '100%'}}
+            style={{height: 'calc(100% - 45px)'}}
             items={menus}
-            onSelect={data => console.log('trigger onSelect: ', data)}
+            onSelect={data => {}}
             onClick={data => clickNavItem(navigate, data.itemKey as string)}
+            footer={{
+                collapseButton: true,
+            }}
         />
     )
 }
