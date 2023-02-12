@@ -1,4 +1,5 @@
 export type IRoute = {
+    $params?: any;
     name: string;
     path: string;
     key?: string;
