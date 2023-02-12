@@ -9,7 +9,7 @@ export default ({$setTitle}: any) => {
     const params = useParams();
 
     useEffect(()=>{
-        $setTitle(`用户: ${JSON.stringify(params)}`)
+        // $setTitle(`用户: ${JSON.stringify(params)}`)
     },[params])
 
     console.log('Params', params)

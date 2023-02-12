@@ -1,4 +1,4 @@
-import {IRoute} from "../types";
+import {IRoute} from "@/types";
 import lazyload from "./lazyload";
 import {isArray} from "./is";
 import {split} from "lodash";
@@ -12,19 +12,20 @@ export function flattenRoutes(routes: IRoute[]): IRoute[] {
     const res: IRoute[] = [];
     const travel = (_routes: IRoute[]) => {
         _routes.forEach((route) => {
-            if (route.key) {
+            if (route.path) {
+                route.key = route.path
                 try {
-                    if (route.key.indexOf(':') > -1) {
+                    if (route.path.indexOf(':') > -1) {
                         const items = split(route.key, '/')
-                        console.log("split items:", items)
+                        route.wild = true;
                         route.component = lazyload(modules[`/src/pages/${items[1]}/index.tsx`]);
                         res.push(route);
                     } else {
-                        route.component = lazyload(modules[`/src/pages${route.key}/index.tsx`]);
+                        route.component = lazyload(modules[`/src/pages${route.path}/index.tsx`]);
                         res.push(route);
                     }
                 } catch (e) {
-                    console.error(`parse route: ${route.key} error:`, e);
+                    console.error(`parse route: ${route.path} error:`, e);
                 }
             }
             if (isArray(route.children) && route.children?.length) {

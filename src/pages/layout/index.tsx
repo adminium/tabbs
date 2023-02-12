@@ -48,15 +48,14 @@ function LayoutPage() {
             return
         }
         const tab = tabs.find(item => item.key == location.pathname);
-        console.log(tab)
         if (tab) {
-            setActiveKey(tab.key);
+            setActiveKey(tab.key as string);
         } else {
             let clone = false;
             const route = flattenRoutesMemo.find(item => {
                 if (item.key == location.pathname) {
                     return true
-                } else if (matchPath(item.key, location.pathname)) {
+                } else if (matchPath(item.key as string, location.pathname)) {
                     clone = true;
                     return true
                 }
@@ -67,19 +66,20 @@ function LayoutPage() {
                 setTabs(prev => {
                     const next = [...prev]
                     if (clone) {
-                        // const c = cloneDeep(route);
-                        // c.key = location.pathname
-                        // next.push(c)
+                        const c = cloneDeep(route);
+                        c.key = location.pathname
+                        next.push(c)
+                        setActiveKey(c.key);
                     } else {
                         next.push(route)
+                        setActiveKey(route.key as string);
                     }
                     return next
                 });
-                // NProgress.start();
-                // route.component.preload().then(() => {
-                //     NProgress.done()
-                // })
-                // setActiveKey(route.key);
+                NProgress.start();
+                route.component.preload().then(() => {
+                    NProgress.done()
+                })
             } else {
                 Toast.error({content: '页面未找到'})
             }
@@ -112,28 +112,22 @@ function LayoutPage() {
                       </div>}
                 >
                     {tabs.map((route: IRoute, index: number) => {
-                        return (<TabPane tab={route.name}
-                                         icon={route.icon}
-                                         key={index}
-                                         itemKey={route.key}
-                                         closable={route.closable}>
-                                {route.component.render({
-                                    $setTitle: (title: string) => {
-                                        setTabs(prev => {
-                                            const next = [...prev]
-                                            for (let i = 0; i < next.length; i++) {
-                                                if (next[i].key == route.key) {
-                                                    next[i].name = title
-                                                }
-                                            }
-                                            return next
-                                        })
-                                    }
-                                })}
-                            </TabPane>
+                        return (
+                            <TabPane key={index} tab={route.name} itemKey={route.key}/>
                         )
                     })}
                 </Tabs>
+                <Routes>
+                    {tabs.map((route: IRoute, index: number) => {
+                        return (
+                            <Route
+                                key={route.key}
+                                path={route.path}
+                                element={route.component.render()}
+                            />
+                        )
+                    })}
+                </Routes>
             </Content>
         </Layout>
     </Layout>
