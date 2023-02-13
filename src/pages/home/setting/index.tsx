@@ -1,5 +1,5 @@
 import React, {useState, useMemo, useEffect} from 'react';
-import {Table, Avatar} from '@douyinfe/semi-ui';
+import {Table, Avatar, Card} from '@douyinfe/semi-ui';
 import * as dateFns from 'date-fns';
 
 
@@ -100,11 +100,16 @@ export default function () {
         setData(data);
     }, []);
 
-    return <Table columns={columns}
-                  dataSource={dataSource}
-                  rowSelection={rowSelection}
-                  pagination={{
-                      pageSize: 10
-                  }}
-    />;
+    return <div style={{padding: 20}}>
+        <Card title='用户列表'>
+            <Table columns={columns}
+                   size='small'
+                   dataSource={dataSource}
+                   rowSelection={rowSelection}
+                   pagination={{
+                       pageSize: 20
+                   }}
+            />
+        </Card>
+    </div>;
 }

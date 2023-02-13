@@ -9,7 +9,7 @@ import {Button, Layout, TabPane, Toast} from '@douyinfe/semi-ui';
 import {HeaderComponent} from "@/pages/layout/header";
 import {generatePath, useNavigate} from "react-router";
 import NProgress from "nprogress";
-import {IconRefresh} from "@douyinfe/semi-icons";
+import {IconClose, IconRefresh} from "@douyinfe/semi-icons";
 import {useMount} from "ahooks";
 import {cloneDeep, keyBy} from "lodash";
 import {ReactSortable} from "react-sortablejs";
@@ -111,10 +111,9 @@ function LayoutPage() {
                     }
                     return next
                 });
-
+                setActiveKey(location.pathname)
                 NProgress.start();
                 route.component.preload().then(() => {
-                    setActiveKey(key)
                     NProgress.done()
                 })
             } else {
@@ -138,7 +137,7 @@ function LayoutPage() {
                             activeKey={activeKey}
                             setActiveKey={setActiveKey}
                 />
-                <div>
+                <div style={{height: 'calc(100vh - 78px)', overflow: 'scroll'}}>
                     {tabs.map((route: IRoute, index: number) => {
                         return (
                             <div
@@ -160,9 +159,11 @@ interface iCard {
     id: string,
     name: string,
     icon: any,
+
+    closeable: boolean,
 }
 
-function RenderTabs({tabs, setTabs, activeKey, setActiveKey}: {
+function RenderTabs({tabs, setTabs, activeKey}: {
     tabs: IRoute[], setTabs: Function, activeKey: string, setActiveKey: Function
 }) {
 
@@ -175,11 +176,13 @@ function RenderTabs({tabs, setTabs, activeKey, setActiveKey}: {
                 id: item.key as string,
                 name: item.name,
                 icon: item.icon,
+                closeable: !item.pin
             })
         })
         setCards(list)
         console.log("RenderTabs 变化了", tabs)
     }, [tabs])
+
 
     return <ReactSortable tag={CustomComponent} list={cards} setList={setCards}>
         {cards.map((item) => (
@@ -190,10 +193,22 @@ function RenderTabs({tabs, setTabs, activeKey, setActiveKey}: {
                      navigate(item.id);
                  }}
             >
-                <span>
-                    {item.icon && <i className={classes.icon}>{item.icon}</i>}
-                    {item.name}
-                </span>
+                <div>
+                    {item.icon && <span className={classes.icon}>{item.icon}</span>}
+                    <span className={classes.title}>{item.name}</span>
+                </div>
+                {item.closeable && <IconClose onClick={() => {
+                    setTabs((prev: IRoute[]) => {
+                        const next = [...prev];
+                        for (let i = 0; i < next.length; i++) {
+                            if (next[i].key == item.id) {
+                                next.splice(i, 1)
+                            }
+                        }
+                        return next
+                    })
+
+                }}/>}
             </div>
         ))}
     </ReactSortable>
