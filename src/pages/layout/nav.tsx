@@ -8,6 +8,8 @@ import {NavigateFunction} from "react-router/dist/lib/hooks";
 import 'nprogress/nprogress.css';
 import {IRoute} from "@/types";
 import {NavItemPropsWithItems} from "@douyinfe/semi-ui/lib/es/navigation";
+import classes from "./style/index.module.less";
+import {IconGift} from "@douyinfe/semi-icons";
 
 
 function clickNavItem(navigate: NavigateFunction, key: string) {
@@ -56,23 +58,25 @@ export function LayoutNav({flattenRoutes}: { flattenRoutes: IRoute[] }) {
     }, []);
 
 
-    return (
-        <Nav
-            style={{height: 'calc(100% - 45px)'}}
-            items={items}
-            onSelect={data => {
-            }}
-            onClick={data => {
-                const item = flattenRoutes.find(item => item.path == data.itemKey);
-                if (!item) {
-                    Toast.error({content: '组件未找到'})
-                } else if (!item.children) {
-                    navigate(data.itemKey as string);
-                }
-            }}
-            footer={{
-                collapseButton: true,
-            }}
+    return <div style={{height: '100%'}}>
+        <div className={classes.navHeader}>
+            <IconGift size={'large'} style={{color: '#0064fa', marginRight: 8}}/> Router
+        </div>
+        <Nav style={{height: 'calc(100% - 45px)'}}
+             items={items}
+             onSelect={data => {
+             }}
+             onClick={data => {
+                 const item = flattenRoutes.find(item => item.path == data.itemKey);
+                 if (!item) {
+                     Toast.error({content: '组件未找到'})
+                 } else if (!item.children) {
+                     navigate(data.itemKey as string);
+                 }
+             }}
+             footer={{
+                 collapseButton: true,
+             }}
         />
-    )
+    </div>
 }

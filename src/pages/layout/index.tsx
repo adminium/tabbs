@@ -125,15 +125,14 @@ function LayoutPage() {
 
 
     return <Layout className={classes.layout}>
-        <HeaderComponent/>
         <Layout>
             <Sider style={{height: '100vh'}}>
                 <LayoutNav
                     flattenRoutes={flattenRoutes}
-                    setActiveKey={setActiveKey}
                 />
             </Sider>
-            <Content style={{background: '#f7f7f7'}}>
+            <Content className={classes.main}>
+                <HeaderComponent/>
                 <RenderTabs tabs={tabs}
                             setTabs={setTabs}
                             activeKey={activeKey}
@@ -191,8 +190,10 @@ function RenderTabs({tabs, setTabs, activeKey, setActiveKey}: {
                      navigate(item.id);
                  }}
             >
-                {item.icon && <span className={classes.icon}>{item.icon}</span>}
-                {item.name}
+                <span>
+                    {item.icon && <i className={classes.icon}>{item.icon}</i>}
+                    {item.name}
+                </span>
             </div>
         ))}
     </ReactSortable>
