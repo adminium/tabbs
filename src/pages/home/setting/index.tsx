@@ -9,7 +9,7 @@ const columns = [
         title: '标题',
         dataIndex: 'name',
         width: 400,
-        render: (text, record, index) => {
+        render: (text: any, record: any, index: any) => {
             return (
                 <div>
                     <Avatar size="small" shape="square" src={figmaIconUrl} style={{marginRight: 12}}></Avatar>
@@ -27,18 +27,18 @@ const columns = [
                 value: 'Semi Pro 设计稿',
             },
         ],
-        onFilter: (value, record) => record.name.includes(value),
+        onFilter: (value: any, record: any) => record.name.includes(value),
     },
     {
         title: '大小',
         dataIndex: 'size',
-        sorter: (a, b) => (a.size - b.size > 0 ? 1 : -1),
-        render: text => `${text} KB`,
+        sorter: (a: any, b: any) => (a.size - b.size > 0 ? 1 : -1),
+        render: (text: any) => `${text} KB`,
     },
     {
         title: '所有者',
         dataIndex: 'owner',
-        render: (text, record, index) => {
+        render: (text: any, record: any, index: any) => {
             return (
                 <div>
                     <Avatar size="small" color={record.avatarBg} style={{marginRight: 4}}>
@@ -52,8 +52,8 @@ const columns = [
     {
         title: '更新日期',
         dataIndex: 'updateTime',
-        sorter: (a, b) => (a.updateTime - b.updateTime > 0 ? 1 : -1),
-        render: value => {
+        sorter: (a: any, b: any) => (a.updateTime - b.updateTime > 0 ? 1 : -1),
+        render: (value: any) => {
             return dateFns.format(new Date(value), 'yyyy-MM-dd');
         },
     },
@@ -69,7 +69,7 @@ export default function () {
             onChange: (selectedRowKeys: any, selectedRows: any) => {
                 console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
             },
-            getCheckboxProps: record => ({
+            getCheckboxProps: (record: any) => ({
                 disabled: record.name === 'Michael James', // Column configuration not to be checked
                 name: record.name,
             }),
@@ -97,7 +97,7 @@ export default function () {
 
     useEffect(() => {
         const data = getData();
-        setData(data);
+        setData(data as any);
     }, []);
 
     return <div style={{padding: 20}}>
