@@ -1,21 +1,23 @@
-import {Routes, Route, RouterProvider, createBrowserRouter, Link, useLocation, matchPath} from "react-router-dom";
-import React, {forwardRef, useEffect, useMemo, useState} from "react";
+import {useLocation, matchPath} from "react-router-dom";
+import React, {forwardRef, useEffect, useState} from "react";
 import {routes} from "../routes";
 import {prepareRoutes} from "@/utils/prepareRoutes";
 import {IRoute} from "@/types";
 import classes from './style/index.module.less'
 import {LayoutNav} from "@/pages/layout/nav";
-import {Button, Layout, TabPane, Toast} from '@douyinfe/semi-ui';
+import {Layout, Toast} from '@douyinfe/semi-ui';
 import {HeaderComponent} from "@/pages/layout/header";
-import {generatePath, useNavigate} from "react-router";
+import {useNavigate} from "react-router";
 import NProgress from "nprogress";
-import {IconClose, IconRefresh} from "@douyinfe/semi-icons";
+import {IconClose} from "@douyinfe/semi-icons";
 import {useMount} from "ahooks";
-import {cloneDeep, keyBy} from "lodash";
+import {cloneDeep} from "lodash";
 import {ReactSortable} from "react-sortablejs";
-import {v4 as uuidv4} from 'uuid';
+import Sortable, {Swap} from "sortablejs";
+
 
 const {Sider, Content} = Layout;
+Sortable.mount(new Swap());
 
 const CustomComponent = forwardRef<HTMLDivElement, any>((props, ref) => {
     return <div className={classes.tabs} ref={ref}>{props.children}</div>;
@@ -159,8 +161,8 @@ interface iCard {
     id: string,
     name: string,
     icon: any,
-
     closeable: boolean,
+    filtered: boolean
 }
 
 function RenderTabs({tabs, setTabs, activeKey}: {
@@ -176,7 +178,8 @@ function RenderTabs({tabs, setTabs, activeKey}: {
                 id: item.key as string,
                 name: item.name,
                 icon: item.icon,
-                closeable: !item.pin
+                closeable: !item.pin,
+                filtered: !!item.pin
             })
         })
         setCards(list)
@@ -184,34 +187,65 @@ function RenderTabs({tabs, setTabs, activeKey}: {
     }, [tabs])
 
 
-    return <ReactSortable tag={CustomComponent} list={cards} setList={setCards}>
-        {cards.map((item) => (
-            <div className={[classes.tab, item.id == activeKey ? classes.active : ''].join(' ')}
-                 key={item.id}
-                 onClick={() => {
-                     // setActiveKey(item.id);
-                     navigate(item.id);
-                 }}
-            >
-                <div>
-                    {item.icon && <span className={classes.icon}>{item.icon}</span>}
-                    <span className={classes.title}>{item.name}</span>
-                </div>
-                {item.closeable && <IconClose onClick={() => {
-                    setTabs((prev: IRoute[]) => {
-                        const next = [...prev];
-                        for (let i = 0; i < next.length; i++) {
-                            if (next[i].key == item.id) {
-                                next.splice(i, 1)
+    return <div style={{display:"flex"}}>
+        <div className={classes.tabs}>
+            {cards.filter(item => !item.closeable).map((item) => (
+                <div className={[classes.tab, item.id == activeKey ? classes.active : ''].join(' ')}
+                     key={item.id}
+                     onClick={() => {
+                         navigate(item.id);
+                     }}
+                >
+                    <div>
+                        {item.icon && <span className={classes.icon}>{item.icon}</span>}
+                        <span className={classes.title}>{item.name}</span>
+                    </div>
+                    {item.closeable && <IconClose onClick={() => {
+                        setTabs((prev: IRoute[]) => {
+                            const next = [...prev];
+                            for (let i = 0; i < next.length; i++) {
+                                if (next[i].key == item.id) {
+                                    next.splice(i, 1)
+                                }
                             }
-                        }
-                        return next
-                    })
+                            return next
+                        })
 
-                }}/>}
-            </div>
-        ))}
-    </ReactSortable>
+                    }}/>}
+                </div>
+            ))}
+        </div>
+        <ReactSortable tag={CustomComponent}
+                       list={cards}
+                       ignore={'.sortable-filter'}
+                       setList={setCards}>
+            {cards.filter(item => item.closeable).map((item) => (
+                <div className={[classes.tab, item.id == activeKey ? classes.active : ''].join(' ')}
+                     key={item.id}
+                     onClick={() => {
+                         navigate(item.id);
+                     }}
+                >
+                    <div>
+                        {item.icon && <span className={classes.icon}>{item.icon}</span>}
+                        <span className={classes.title}>{item.name}</span>
+                    </div>
+                    {item.closeable && <IconClose onClick={() => {
+                        setTabs((prev: IRoute[]) => {
+                            const next = [...prev];
+                            for (let i = 0; i < next.length; i++) {
+                                if (next[i].key == item.id) {
+                                    next.splice(i, 1)
+                                }
+                            }
+                            return next
+                        })
+
+                    }}/>}
+                </div>
+            ))}
+        </ReactSortable>
+    </div>
 }
 
 export default LayoutPage;
