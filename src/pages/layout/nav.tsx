@@ -1,5 +1,5 @@
 import {Nav, Toast} from "@douyinfe/semi-ui";
-import {useMemo} from "react";
+import React, {useMemo} from "react";
 import {routes} from "@/pages/routes";
 import {SubNavProps} from "@douyinfe/semi-ui/lib/es/navigation/SubNav";
 import NProgress from 'nprogress';
@@ -7,6 +7,7 @@ import {useNavigate} from "react-router";
 import {NavigateFunction} from "react-router/dist/lib/hooks";
 import 'nprogress/nprogress.css';
 import {IRoute} from "@/types";
+import {NavItemPropsWithItems} from "@douyinfe/semi-ui/lib/es/navigation";
 
 
 function clickNavItem(navigate: NavigateFunction, key: string) {
@@ -23,35 +24,51 @@ function clickNavItem(navigate: NavigateFunction, key: string) {
     // }
 }
 
-export function LayoutNav({flattenRoutes, setActiveKey}: { flattenRoutes: IRoute[], setActiveKey: Function }) {
+function parseRoute(route: IRoute): NavItemPropsWithItems {
+
+    const item: NavItemPropsWithItems = {
+        disabled: false,
+        icon: route.icon,
+        // level: number;
+        // link: route.path,
+        text: route.name,
+        itemKey: route.path,
+        items: []
+    }
+
+    if (route.children && route.children.length > 0) {
+        for (let i = 0; i < route.children.length; i++) {
+            item.items?.push(parseRoute(route.children[i]))
+        }
+    }
+    return item
+}
+
+export function LayoutNav({flattenRoutes}: { flattenRoutes: IRoute[] }) {
 
     const navigate = useNavigate();
-
-    // TODO 需要一个递归转换菜单的函数
-    const menus = useMemo(() => {
-        const res: SubNavProps[] = [];
-        flattenRoutes.map((item, index) => {
-            if (!item.wild && !item.hidden) {
-                res.push({
-                    itemKey: item.key,
-                    text: item.name,
-                    icon: item.icon,
-                })
-            }
+    const items = useMemo(() => {
+        const res: NavItemPropsWithItems[] = [];
+        routes.map(item => {
+            res.push(parseRoute(item))
         })
         return res;
-    }, [flattenRoutes]);
+    }, []);
 
 
     return (
         <Nav
             style={{height: 'calc(100% - 45px)'}}
-            items={menus}
+            items={items}
             onSelect={data => {
             }}
             onClick={data => {
-                // setActiveKey(data.itemKey);
-                navigate(data.itemKey as string);
+                const item = flattenRoutes.find(item => item.path == data.itemKey);
+                if (!item) {
+                    Toast.error({content: '组件未找到'})
+                } else if (!item.children) {
+                    navigate(data.itemKey as string);
+                }
             }}
             footer={{
                 collapseButton: true,
